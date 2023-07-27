@@ -1,1 +1,10 @@
 # reddit-lemmy-bot
+
+This is supposed to become a bot that will archive certain reddit posts to lemmy, including all comments.
+
+It uses a modified version of [geddit](https://github.com/kaangiray26/geddit) to access data from Reddit.
+
+## Roadmap
+- fully translate geddit javascript file to typescript
+- reorganize files
+- find out how to interface with lemmy
