@@ -1,0 +1,23 @@
+{
+  "name": "reddit-lemmy-bot",
+  "version": "1.0.0",
+  "description": "A bot to pull reddit posts onto lemmy",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "devStart": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eco-Gaming/reddit-lemmy-bot.git"
+  },
+  "author": "Eco-Gaming",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Eco-Gaming/reddit-lemmy-bot/issues"
+  },
+  "homepage": "https://github.com/Eco-Gaming/reddit-lemmy-bot#readme",
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
