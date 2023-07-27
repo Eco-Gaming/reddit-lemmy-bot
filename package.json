@@ -26,6 +26,6 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
-    "@types/node-fetch": "^2.6.4"
+    "undici": "^5.22.1"
   }
 }
