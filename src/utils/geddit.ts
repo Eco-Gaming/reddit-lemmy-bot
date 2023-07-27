@@ -1,3 +1,5 @@
+// original javascript file: https://github.com/kaangiray26/geddit-app/blob/main/src/js/geddit.js
+
 import { Search } from "./search";
 import { Sort } from "./sort";
 import { SubredditSort } from "./subreddit_sort";
