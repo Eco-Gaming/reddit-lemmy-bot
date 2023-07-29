@@ -1,45 +1,19 @@
 // original javascript file: https://github.com/kaangiray26/geddit-app/blob/main/src/js/geddit.js
 
+import { RedditParameters } from "./reddit/reddit_parameters";
+import { RedditSearchParameters } from "./reddit/reddit_search_parameters";
+import { RedditSearchResults } from "./reddit/reddit_search_results";
+import { RedditPosts } from "./reddit/reddit_posts";
+import { RedditSubreddits } from "./reddit/reddit_subreddits";
+import { RedditUsers } from "./reddit/reddit_users";
+
 import { Search } from "./search";
-import { Sort } from "./sort";
-import { SubredditSort } from "./subreddit_sort";
-import { UserSort } from "./user_sort";
+
+import { Sort } from "./sort/sort";
+import { SubredditSort } from "./sort/subreddit_sort";
+import { UserSort } from "./sort/user_sort";
+
 declare var fetch: typeof import('undici').fetch;
-
-interface RedditParameters {
-    limit: number;
-    include_over_18: boolean;
-    type?: string;
-    after?: string;
-    t?: string;
-}
-
-interface RedditSearchParameters {
-    limit: number;
-    include_over_18: boolean;
-    q: string;
-    type?: string;
-}
-
-interface RedditSearchResults {
-    after: string;
-    items: any[];
-}
-
-interface RedditPosts {
-    after: string;
-    posts: any[]; // Replace 'any' with a proper type for the 'posts' array.
-}
-
-interface RedditSubreddits {
-    after: string;
-    subreddits: any[];
-}
-
-interface RedditUsers {
-    after: string;
-    users: any[];
-}
 
 class Geddit {
     host: string
@@ -124,7 +98,7 @@ class Geddit {
     async processResponse(url: string, isPosts: boolean = false, isSubreddits: boolean = false, isUsers: boolean = false, isSearchResults: boolean = false, isSearchAll: boolean = false) {
         try {
             const response = await fetch(url);
-            
+
             if (!response.ok) {
                 throw new Error("Request failed");
             }
