@@ -6,6 +6,7 @@ It uses a modified version of [geddit](https://github.com/kaangiray26/geddit) to
 
 ## Roadmap
 - fully translate geddit javascript file to typescript
+- implement error handling
 - reorganize files
 - reddit manager class for logic to determine ie. which posts to download, gettings streams of more than 25 posts, etc.
 - find out how to interface with lemmy
