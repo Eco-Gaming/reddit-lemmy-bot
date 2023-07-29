@@ -2,16 +2,19 @@
 
 import { RedditParameters } from './reddit/reddit_parameters';
 import { RedditSearchParameters } from './reddit/reddit_search_parameters';
-import { RedditSearchResults } from './reddit/reddit_search_results';
+import { RedditItems } from './reddit/reddit_items';
 import { RedditSubmissions } from './reddit/reddit_submissions';
 import { RedditSubreddits } from './reddit/reddit_subreddits';
 import { RedditUsers } from './reddit/reddit_users';
+import { RedditPost } from './reddit/reddit_post';
 
 import { Search } from './search';
 
 import { Sort } from './sort/sort';
 import { SubredditSort } from './sort/subreddit_sort';
 import { UserSort } from './sort/user_sort';
+
+import { UserPage } from './user_page';
 
 declare const fetch: typeof import('undici').fetch;
 
@@ -59,7 +62,7 @@ class Geddit {
 	//     return data.children;
 	// }
 
-	async getSubredditWikiPages(subreddit: string): Promise<any | null> {
+	async getSubredditWikiPages(subreddit: string): Promise<any[] | null> {
 		return this.processResponse(this.host + '/r/' + subreddit + '/wiki/pages.json');
 	}
 
@@ -67,7 +70,7 @@ class Geddit {
 		return this.processResponse(this.host + '/r/' + subreddit + '/wiki/' + page + '.json');
 	}
 
-	async getSubredditWikiPageRevisions(subreddit: string, page: string): Promise<any | null> {
+	async getSubredditWikiPageRevisions(subreddit: string, page: string): Promise<any[] | null> {
 		const data = await this.processResponse(this.host + '/r/' + subreddit + '/wiki/revisions/' + page + '.json') as any;
 		return data ? data.children : null;
 	}
@@ -80,7 +83,7 @@ class Geddit {
 		return this.processResponse(this.host + `/users/${userSort}.json?` + new URLSearchParams(this.parameterValuesToString(redditParameters)), false, false, true);
 	}
 
-	async search(query: string, search: Search = Search.ALL, subreddit: string = '', redditSearchParameters: RedditSearchParameters = { limit: this.parameters.limit, include_over_18: this.parameters.include_over_18, q: query }): Promise<RedditSearchResults | null> {
+	async search(query: string, search: Search = Search.ALL, subreddit: string = '', redditSearchParameters: RedditSearchParameters = { limit: this.parameters.limit, include_over_18: this.parameters.include_over_18, q: query }): Promise<RedditItems | null> {
 		redditSearchParameters.q = query;
 		if (search == Search.SUBMISSIONS) redditSearchParameters.type = 'link';
 		if (search == Search.ALL) redditSearchParameters.type = 'sr,link,user';
@@ -88,6 +91,42 @@ class Geddit {
 		if (subreddit.length > 0) subreddit = '/r/' + subreddit;
 		return this.processResponse(this.host + `/${search}.json?` + new URLSearchParams(this.parameterValuesToString(redditSearchParameters)), false, false, false, true, (search == Search.ALL ? true : false));
 	}
+
+	// This endpoint no longer works (404), but it was ported over as it still exists in the javascript version
+	// async getSubmission(id: string): Promise<any | null> {
+	// 	const data = await this.processResponse(this.host + '/by_id/' + id + '.json') as any;
+	// 	return data ? data.children[0].data : null;
+	// }
+
+	// in geddit.js: getSubmissionComments()
+	async getPost(id: string, redditParameters: RedditParameters = this.parameters): Promise<RedditPost | null> {
+		const json = await this.processResponse(this.host + '/comments/' + id + '.json?' + new URLSearchParams(this.parameterValuesToString(redditParameters))) as any;
+		return {
+			submission: json[0].data.children[0],
+			comments: json[1].data.children,
+		} as RedditPost;
+	}
+
+	async getSubredditComments(subreddit: string, redditParameters: RedditParameters): Promise<any[] | null> {
+		const data = await this.processResponse(this.host + '/r/' + subreddit + '/comments.json?' + new URLSearchParams(this.parameterValuesToString(redditParameters))) as any;
+		return data ? data.children : null;
+	}
+
+	async getUser(username: string, userPage: UserPage = UserPage.ABOUT, redditParameters: RedditParameters = this.parameters): Promise<any | RedditItems | null> {
+		let url = this.host + '/user/' + userPage + '.json';
+		if (userPage != UserPage.ABOUT) url += '?' + new URLSearchParams(this.parameterValuesToString(redditParameters));
+		const data = await this.processResponse(url) as any;
+		if (userPage == UserPage.ABOUT) {
+			return data;
+		} else {
+			return {
+				after: data.after,
+				items: data.children,
+			} as RedditItems;
+		}
+	}
+
+	// currently missing live threads, which probably won't be added any time soon as they aren't important for this project
 
 	parameterValuesToString(redditParameters: RedditParameters) {
 		const redditParameterStrings: { [key: string]: string } = {};
@@ -113,18 +152,18 @@ class Geddit {
 					return {
 						after: json[1].data.after,
 						items: json[0].data.children.concat(json[1].data.children),
-					} as RedditSearchResults;
+					} as RedditItems;
 				} else {
 					return {
 						after: data.after,
 						items: data.children,
-					} as RedditSearchResults;
+					} as RedditItems;
 				}
 			} else if (isSearchResults) {
 				return {
 					after: data.after,
 					items: data.children,
-				} as RedditSearchResults;
+				} as RedditItems;
 			} else if (isUsers) {
 				return {
 					after: data.after,
