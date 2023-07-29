@@ -1,10 +1,10 @@
-import { Geddit } from "./utils/geddit";
+import { Geddit } from './utils/geddit';
 
 async function test() {
-    const geddit: Geddit = new Geddit()
-    const posts = await geddit.getSubmissions()
+	const geddit: Geddit = new Geddit();
+	const posts = await geddit.getSubmissions();
 
-    console.log(posts)
+	console.log(posts);
 }
-    
-test()
+
+test();

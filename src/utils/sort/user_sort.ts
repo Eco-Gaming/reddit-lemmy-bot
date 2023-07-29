@@ -1,4 +1,4 @@
 export const enum UserSort {
-    POPULAR = "popular",
-    NEW = "new",
+    POPULAR = 'popular',
+    NEW = 'new',
 }
