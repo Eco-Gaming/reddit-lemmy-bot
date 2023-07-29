@@ -3,7 +3,7 @@
 import { RedditParameters } from './reddit/reddit_parameters';
 import { RedditSearchParameters } from './reddit/reddit_search_parameters';
 import { RedditSearchResults } from './reddit/reddit_search_results';
-import { RedditPosts } from './reddit/reddit_posts';
+import { RedditSubmissions } from './reddit/reddit_submissions';
 import { RedditSubreddits } from './reddit/reddit_subreddits';
 import { RedditUsers } from './reddit/reddit_users';
 
@@ -14,6 +14,10 @@ import { SubredditSort } from './sort/subreddit_sort';
 import { UserSort } from './sort/user_sort';
 
 declare const fetch: typeof import('undici').fetch;
+
+// Submission: content only
+// Comments: comments
+// Post: both submission and comments
 
 class Geddit {
 	host: string;
@@ -32,12 +36,12 @@ class Geddit {
 		};
 	}
 
-	async getSubmissions(sort: Sort = Sort.HOT, subreddit: string = '', redditParameters: RedditParameters = this.parameters): Promise<RedditPosts | null> {
+	async getSubmissions(sort: Sort = Sort.HOT, subreddit: string = '', redditParameters: RedditParameters = this.parameters): Promise<RedditSubmissions | null> {
 		if (subreddit.length > 0) subreddit = '/r/' + subreddit;
 		return this.processResponse(this.host + subreddit + `/${sort}.json?` + new URLSearchParams(this.parameterValuesToString(redditParameters)), true);
 	}
 
-	async getDomain(domain: string, sort: Sort = Sort.HOT, redditParameters: RedditParameters = this.parameters): Promise<RedditPosts | null> {
+	async getDomain(domain: string, sort: Sort = Sort.HOT, redditParameters: RedditParameters = this.parameters): Promise<RedditSubmissions | null> {
 		return this.processResponse(this.host + '/domain/' + domain + `/${sort}.json?` + new URLSearchParams(this.parameterValuesToString(redditParameters)), true);
 	}
 
@@ -49,13 +53,11 @@ class Geddit {
 		return this.processResponse(this.host + '/r/' + subreddit + '/about/rules.json');
 	}
 
-	// This endpoint no longer works, but it was ported over as it still exists in the javascript version
+	// This endpoint no longer works (403), but it was ported over as it still exists in the javascript version
 	// async getSubredditModerators(subreddit: string): Promise<any | null> {
 	//     const data = this.processResponse(this.host + '/r/' + subreddit + '/about/moderators.json') as any;
 	//     return data.children;
 	// }
-
-	// TODO: test from here
 
 	async getSubredditWikiPages(subreddit: string): Promise<any | null> {
 		return this.processResponse(this.host + '/r/' + subreddit + '/wiki/pages.json');
@@ -67,7 +69,7 @@ class Geddit {
 
 	async getSubredditWikiPageRevisions(subreddit: string, page: string): Promise<any | null> {
 		const data = await this.processResponse(this.host + '/r/' + subreddit + '/wiki/revisions/' + page + '.json') as any;
-		return data.children;
+		return data ? data.children : null;
 	}
 
 	async getSubreddits(subredditSort: SubredditSort = SubredditSort.POPULAR, redditParameters: RedditParameters = this.parameters): Promise<RedditSubreddits | null> {
@@ -95,7 +97,7 @@ class Geddit {
 		return redditParameterStrings;
 	}
 
-	async processResponse(url: string, isPosts: boolean = false, isSubreddits: boolean = false, isUsers: boolean = false, isSearchResults: boolean = false, isSearchAll: boolean = false) {
+	async processResponse(url: string, isSubmissions: boolean = false, isSubreddits: boolean = false, isUsers: boolean = false, isSearchResults: boolean = false, isSearchAll: boolean = false) {
 		try {
 			const response = await fetch(url);
 
@@ -133,11 +135,11 @@ class Geddit {
 					after: data.after,
 					subreddits: data.children,
 				} as RedditSubreddits;
-			} else if (isPosts) {
+			} else if (isSubmissions) {
 				return {
 					after: data.after,
-					posts: data.children,
-				} as RedditPosts;
+					submissions: data.children,
+				} as RedditSubmissions;
 			} else {
 				if (data) return data;
 				return json;
