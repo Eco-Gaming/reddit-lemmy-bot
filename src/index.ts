@@ -1,21 +1,13 @@
 import { Geddit } from './utils/geddit';
+import { RedditInator } from './reddit_inator';
+import { WatchedSubreddit } from './utils/watched_subreddit';
 
 async function test() {
 	const geddit: Geddit = new Geddit();
-	const posts = await geddit.getPost('15cb2e6');
+	const redditInator = new RedditInator(geddit);
 
-	console.log(posts?.submission.data.title);
-
-	// iterate over all comments, last one is the 'more' button
-	for (let i = 0; i < (posts?.comments.length as number) - 1; i++) {
-		console.log(posts?.comments[i].data.body);
-	}
-
-	const pages = await geddit.getSubredditWikiPages('AskReddit');
-
-	if (pages) {
-		console.log(pages[0]);
-	}
+	redditInator.watch(new WatchedSubreddit('homeassistant'));
+	redditInator.fetchSubmissions();
 }
 
 test();

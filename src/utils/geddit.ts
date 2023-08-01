@@ -15,6 +15,7 @@ import { SubredditSort } from './sort/subreddit_sort';
 import { UserSort } from './sort/user_sort';
 
 import { UserPage } from './user_page';
+import { TopType } from './sort/top_type';
 
 declare const fetch: typeof import('undici').fetch;
 
@@ -39,12 +40,14 @@ class Geddit {
 		};
 	}
 
-	async getSubmissions(sort: Sort = Sort.HOT, subreddit: string = '', redditParameters: RedditParameters = this.parameters): Promise<RedditSubmissions | null> {
+	async getSubmissions(subreddit: string = '', sort: Sort = Sort.HOT, topType: TopType = TopType.ALL_TIME, redditParameters: RedditParameters = this.parameters): Promise<RedditSubmissions | null> {
 		if (subreddit.length > 0) subreddit = '/r/' + subreddit;
+		if (sort == Sort.TOP && !('t' in redditParameters)) redditParameters.t = topType;
 		return this.processResponse(this.host + subreddit + `/${sort}.json?` + new URLSearchParams(this.parameterValuesToString(redditParameters)), true);
 	}
 
-	async getDomain(domain: string, sort: Sort = Sort.HOT, redditParameters: RedditParameters = this.parameters): Promise<RedditSubmissions | null> {
+	async getDomain(domain: string, sort: Sort = Sort.HOT, topType: TopType = TopType.ALL_TIME, redditParameters: RedditParameters = this.parameters): Promise<RedditSubmissions | null> {
+		if (sort == Sort.TOP && !('t' in redditParameters)) redditParameters.t = topType;
 		return this.processResponse(this.host + '/domain/' + domain + `/${sort}.json?` + new URLSearchParams(this.parameterValuesToString(redditParameters)), true);
 	}
 
