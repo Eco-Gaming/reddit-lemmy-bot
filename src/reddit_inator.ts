@@ -11,19 +11,26 @@ class RedditInator {
 
 	fakeDb: Submission[];
 
-	constructor(geddit: Geddit = new Geddit(), subreddits: WatchedSubreddit[] = []) {
+	constructor(geddit: Geddit = new Geddit(), subreddits: WatchedSubreddit[] = [], database: Submission[] = []) {
 		this.geddit = geddit;
 		this.subreddits = subreddits;
 
-		this.fakeDb = [];
+		this.fakeDb = database;
 	}
 
-	watch(subreddit: WatchedSubreddit): void {
-		this.subreddits.push(subreddit);
+	watch(subreddit: string, maxPosts = 100, minScore = 0): void {
+		if (!this.subreddits.some((obj) => obj.subreddit === subreddit)) {
+			const watchedSubreddit: WatchedSubreddit = {
+				subreddit: subreddit,
+				maxPosts: maxPosts,
+				minScore: minScore,
+			};
+			this.subreddits.push(watchedSubreddit);
+		}
 	}
 
-	unwatch(subreddit: WatchedSubreddit): void {
-		const index = this.subreddits.indexOf(subreddit);
+	unwatch(subreddit: string): void {
+		const index = this.subreddits.findIndex((obj) => obj.subreddit === subreddit);
 		if (index !== -1) {
 			this.subreddits.splice(index, 1);
 		}
@@ -39,10 +46,11 @@ class RedditInator {
 		const submissions: Submission[] = [];
 		const parameters = this.geddit.parameters;
 
-		while (submissions.length < subreddit.maxPosts) {
+		outerloop: while (submissions.length < subreddit.maxPosts) {
 			const redditSubmissions = await this.geddit.getSubmissions(subreddit.subreddit, Sort.TOP, TopType.DAY, parameters);
 			if (redditSubmissions != null) {
 				for (const redditSubmission of redditSubmissions.submissions) {
+					if (redditSubmission.data.score < subreddit.minScore) break outerloop;
 					const submission: Submission = {
 						author: redditSubmission.data.author,
 						body: redditSubmission.data.selftext,
@@ -55,7 +63,7 @@ class RedditInator {
 					};
 					if ('url_overridden_by_dest' in redditSubmission.data) submission.mediaUrl = redditSubmission.data.url;
 					submissions.push(submission);
-					if (submissions.length >= subreddit.maxPosts) break;
+					if (submissions.length >= subreddit.maxPosts) break outerloop;
 				}
 				parameters.after = redditSubmissions.after;
 			}
