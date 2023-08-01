@@ -1,5 +1,4 @@
 import { Geddit } from './utils/geddit';
-import { RedditParameters } from './utils/reddit/reddit_parameters';
 import { Sort } from './utils/sort/sort';
 import { TopType } from './utils/sort/top_type';
 import { Submission } from './utils/post/submission';
@@ -38,10 +37,7 @@ class RedditInator {
 
 	private async fetchSubmissionsLocal(subreddit: WatchedSubreddit): Promise<Submission[]> {
 		const submissions: Submission[] = [];
-		const parameters: RedditParameters = {
-			limit: 25,
-			include_over_18: true,
-		};
+		const parameters = this.geddit.parameters;
 
 		while (submissions.length < subreddit.maxPosts) {
 			const redditSubmissions = await this.geddit.getSubmissions(subreddit.subreddit, Sort.TOP, TopType.DAY, parameters);

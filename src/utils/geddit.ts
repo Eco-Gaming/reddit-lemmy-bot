@@ -27,15 +27,12 @@ class Geddit {
 	host: string;
 	parameters: RedditParameters;
 	search_params: RedditParameters;
-	constructor() {
+	constructor(parameters: RedditParameters = { limit: 25, include_over_18: true }) {
 		this.host = 'https://www.reddit.com';
-		this.parameters = {
-			limit: 25,
-			include_over_18: true,
-		};
+		this.parameters = parameters;
 		this.search_params = {
-			limit: 25,
-			include_over_18: true,
+			limit: this.parameters.limit,
+			include_over_18: this.parameters.include_over_18,
 			type: 'sr,link,user',
 		};
 	}
