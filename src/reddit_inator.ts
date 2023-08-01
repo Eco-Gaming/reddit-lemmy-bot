@@ -2,7 +2,7 @@ import { Geddit } from './utils/geddit';
 import { RedditParameters } from './utils/reddit/reddit_parameters';
 import { Sort } from './utils/sort/sort';
 import { TopType } from './utils/sort/top_type';
-import { Submission } from './utils/submission';
+import { Submission } from './utils/post/submission';
 import { WatchedSubreddit } from './utils/watched_subreddit';
 
 class RedditInator {
