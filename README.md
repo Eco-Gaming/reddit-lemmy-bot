@@ -1,5 +1,7 @@
 # reddit-lemmy-bot
 
+This project has been discontinued, as it is not feasible to transfer comments from reddit to lemmy.
+
 This is supposed to become a bot that will archive certain reddit posts to lemmy, including all comments.
 
 It uses a modified version of [geddit](https://github.com/kaangiray26/geddit) to access data from Reddit.
